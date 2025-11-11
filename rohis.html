@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemilu Ketua ROHIS 2025/2026</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #0a5c36;
+            --light-green: #e8f5e9;
+            --accent-green: #2e7d32;
+            --gold: #d4af37;
+            --light-gold: #f9f5e8;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --dark-shadow: rgba(0, 0, 0, 0.15);
+            --error-red: #d32f2f;
+            --success-green: #388e3c;
+            --warning-orange: #f57c00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--light-gold) 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px var(--dark-shadow);
+            position: relative;
+            overflow: hidden;
+            background-color: var(--white);
+            border: 3px solid var(--gold);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        h1 {
+            color: var(--primary-green);
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            color: var(--accent-green);
+            font-size: 18px;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px var(--shadow);
+            padding: 40px;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-green), var(--gold));
+        }
+
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h2 {
+            color: var(--primary-green);
+            margin-bottom: 15px;
+            font-size: 26px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .position-title {
+            color: var(--accent-green);
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        p {
+            margin-bottom: 25px;
+            line-height: 1.7;
+            color: #555;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--primary-green);
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: var(--light-gray);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+            background-color: var(--white);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+            color: var(--white);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(10, 92, 54, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(10, 92, 54, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover::after {
+            transform: translateX(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-orange) 0%, #e65100 100%);
+            box-shadow: 0 5px 15px rgba(245, 124, 0, 0.3);
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled:hover::after {
+            transform: translateX(-100%);
+        }
+
+        .candidates {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .candidate {
+            width: 200px;
+            background-color: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px var(--shadow);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .candidate:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px var(--dark-shadow);
+            border-color: var(--gold);
+        }
+
+        .candidate.selected {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .candidate.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .candidate.disabled:hover {
+            transform: none;
+            box-shadow: 0 8px 20px var(--shadow);
+            border-color: transparent;
+        }
+
+        .candidate-photo {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--light-gold) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-green);
+            font-size: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .candidate-photo i {
+            z-index: 1;
+        }
+
+        .candidate-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .candidate-name {
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+            font-size: 18px;
+            line-height: 1.3;
+            min-height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px var(--shadow);
+            margin-bottom: 8px;
+        }
+
+        .step.active .step-circle {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-circle {
+            background-color: var(--accent-green);
+        }
+
+        .step-text {
+            font-size: 12px;
+            color: #777;
+            font-weight: 500;
+            text-align: center;
+            max-width: 100px;
+            line-height: 1.3;
+        }
+
+        .step.active .step-text {
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        .step-connector {
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background-color: #e0e0e0;
+            z-index: 1;
+        }
+
+        .step-connector-progress {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--accent-green));
+            transition: width 0.5s ease;
+            z-index: 1;
+        }
+
+        .thank-you-message {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .arabic-text {
+            font-family: 'Traditional Arabic', 'Times New Roman', serif;
+            font-size: 28px;
+            color: var(--primary-green);
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .islamic-pattern {
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%230a5c36' fill-rule='evenodd'/%3E%3C/svg%3E");
+            z-index: 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--accent-green);
+            font-size: 14px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .user-info {
+            background: var(--light-green);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .user-info p {
+            margin: 0;
+            color: var(--primary-green);
+            font-weight: 500;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background-color: #ffebee;
+            color: var(--error-red);
+            border-left: 4px solid var(--error-red);
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            color: var(--success-green);
+            border-left: 4px solid var(--success-green);
+        }
+
+        .alert-warning {
+            background-color: #fff3e0;
+            color: var(--warning-orange);
+            border-left: 4px solid var(--warning-orange);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .navigation-buttons.single {
+            justify-content: center;
+        }
+
+        .summary-container {
+            margin-top: 30px;
+        }
+
+        .summary-item {
+            background: var(--light-gray);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .summary-item:hover {
+            background: var(--light-green);
+            transform: translateX(5px);
+        }
+
+        .summary-position {
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+
+        .summary-candidate {
+            font-weight: 500;
+            color: var(--accent-green);
+        }
+
+        .summary-change {
+            color: var(--warning-orange);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .summary-change:hover {
+            text-decoration: underline;
+        }
+
+        .floating-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-green);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+        }
+
+        .floating-notification.show {
+            transform: translateX(0);
+        }
+
+        .floating-notification i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .selection-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-green);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .already-selected-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--warning-orange);
+            color: white;
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-size: 10px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .card {
+                padding: 25px 20px;
+            }
+            
+            .candidates {
+                gap: 15px;
+            }
+            
+            .candidate {
+                width: calc(50% - 15px);
+                max-width: 180px;
+            }
+            
+            .candidate-photo {
+                height: 140px;
+            }
+            
+            h1 {
+                font-size: 26px;
+            }
+            
+            h2 {
+                font-size: 22px;
+            }
+            
+            .step {
+                margin: 0 8px;
+            }
+            
+            .step-circle {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .step-text {
+                font-size: 10px;
+                max-width: 70px;
+            }
+            
+            .step-connector {
+                top: 17px;
+                left: 40px;
+                right: 40px;
+            }
+            
+            .step-connector-progress {
+                top: 17px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .navigation-buttons .btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .summary-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .floating-notification {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 20px 15px;
+            }
+            
+            .candidates {
+                gap: 10px;
+            }
+            
+            .candidate {
+                width: calc(50% - 10px);
+                max-width: 160px;
+            }
+            
+            .candidate-photo {
+                height: 120px;
+            }
+            
+            .candidate-name {
+                font-size: 16px;
+                min-height: 40px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+            
+            .step {
+                margin: 0 5px;
+            }
+            
+            .step-circle {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+            
+            .step-text {
+                font-size: 9px;
+                max-width: 60px;
+            }
+            
+            .step-connector {
+                top: 15px;
+                left: 30px;
+                right: 30px;
+            }
+            
+            .step-connector-progress {
+                top: 15px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .arabic-text {
+                font-size: 22px;
+            }
+            
+            .thank-you-message {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .candidate {
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .step-text {
+                font-size: 8px;
+                max-width: 50px;
+            }
+            
+            .step-connector {
+                left: 25px;
+                right: 25px;
+            }
+        }
+
+        /* Animation improvements */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page.active {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Enhanced focus states for accessibility */
+        .btn:focus, input:focus, select:focus {
+            outline: 2px solid var(--accent-green);
+            outline-offset: 2px;
+        }
+
+        /* Improved card hover effect */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px var(--dark-shadow);
+        }
+
+        /* Fixed step indicator colors */
+        .step.active .step-circle {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%) !important;
+        }
+        
+        .step.completed .step-circle {
+            background-color: var(--accent-green) !important;
+        }
+        
+        /* Thank you page improvements */
+        .thank-you-logo {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%) !important;
+        }
+        
+        .thank-you-logo i {
+            color: var(--white);
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <!-- Ganti src dengan URL gambar logo ROHIS Anda -->
+                    <img src="/pemilu-rohis/rohis.jpg" alt="Logo ROHIS" id="rohis-logo">
+                </div>
+            </div>
+            <h1>Pemilu Ketua ROHIS 2025/2026</h1>
+            <p class="subtitle">Memilih Pemimpin Rohani Islam yang Berkualitas</p>
+        </div>
+
+        <!-- Halaman Login -->
+        <div id="login-page" class="page active">
+            <div class="card">
+                <div class="islamic-pattern"></div>
+                <h2>Selamat Datang</h2>
+                <p>Silakan login dengan nama dan kelas Anda untuk memulai proses pemilihan.</p>
+                
+                <div id="login-alert" class="alert" style="display: none;"></div>
+                
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="nama"><i class="fas fa-user"></i> Nama Lengkap</label>
+                        <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="kelas"><i class="fas fa-graduation-cap"></i> Kelas</label>
+                        <select id="kelas" name="kelas" required>
+                            <option value="">Pilih Kelas</option>
+                            <option value="X-1">X-1</option>
+                            <option value="X-2">X-2</option>
+                            <option value="X-3">X-3</option>
+                            <option value="X-4">X-4</option>
+                            <option value="X-5">X-5</option>
+                            <option value="X-6">X-6</option>
+                            <option value="X-7">X-7</option>
+                            <option value="X-8">X-8</option>
+                            <option value="X-9">X-9</option>
+                            <option value="XI-1">XI-1</option>
+                            <option value="XI-2">XI-2</option>
+                            <option value="XI-3">XI-3</option>
+                            <option value="XI-4">XI-4</option>
+                            <option value="XI-5">XI-5</option>
+                            <option value="XI-6">XI-6</option>
+                            <option value="XI-7">XI-7</option>
+                            <option value="XI-8">XI-8</option>
+                            <option value="XI-9">XI-9</option>
+                        </select>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button type="submit" class="btn" id="login-btn">Masuk <i class="fas fa-sign-in-alt"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Halaman Voting Ketua Umum -->
+        <div id="ketua-umum-page" class="page">
+            <div class="card">
+                <div class="islamic-pattern"></div>
+                <div class="user-info">
+                    <p><i class="fas fa-user"></i> Pemilih: <span id="user-name"></span> | <i class="fas fa-graduation-cap"></i> Kelas: <span id="user-class"></span></p>
+                </div>
+                
+                <div class="step-indicator">
+                    <div class="step-connector"></div>
+                    <div class="step-connector-progress" id="step-progress"></div>
+                    
+                    <div class="step active">
+                        <div class="step-circle">1</div>
+                        <div class="step-text">Ketua Umum</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">2</div>
+                        <div class="step-text">Penanggungjawab Ikhwan</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <div class="step-text">Penanggungjawab Akhwat</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">4</div>
+                        <div class="step-text">Sekretaris Umum</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">5</div>
+                        <div class="step-text">Bendahara Umum</div>
+                    </div>
+                </div>
+                
+                <div class="page-header">
+                    <h2>Pemilihan Ketua Umum</h2>
+                    <p class="position-title">Pilih calon Ketua Umum ROHIS 2025/2026</p>
+                    <p>Pilih salah satu kandidat untuk memimpin ROHIS tahun depan</p>
+                </div>
+                
+                <div class="candidates" id="ketua-umum-candidates">
+                    <!-- Kandidat akan diisi oleh JavaScript -->
+                </div>
+
+                <div class="navigation-buttons single">
+                    <button class="btn" onclick="nextPage()">Lanjut <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Halaman Voting Penanggungjawab Ikhwan -->
+        <div id="penanggungjawab-ikhwan-page" class="page">
+            <div class="card">
+                <div class="islamic-pattern"></div>
+                <div class="user-info">
+                    <p><i class="fas fa-user"></i> Pemilih: <span id="user-name-2"></span> | <i class="fas fa-graduation-cap"></i> Kelas: <span id="user-class-2"></span></p>
+                </div>
+                
+                <div class="step-indicator">
+                    <div class="step-connector"></div>
+                    <div class="step-connector-progress" id="step-progress-2"></div>
+                    
+                    <div class="step completed">
+                        <div class="step-circle">1</div>
+                        <div class="step-text">Ketua Umum</div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-circle">2</div>
+                        <div class="step-text">Penanggungjawab Ikhwan</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <div class="step-text">Penanggungjawab Akhwat</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">4</div>
+                        <div class="step-text">Sekretaris Umum</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">5</div>
+                        <div class="step-text">Bendahara Umum</div>
+                    </div>
+                </div>
+                
+                <div class="page-header">
+                    <h2>Pemilihan Penanggungjawab Ikhwan</h2>
+                    <p class="position-title">Pilih calon Penanggungjawab Ikhwan ROHIS 2025/2026</p>
+                    <p>Pilih salah satu kandidat untuk mengurus divisi ikhwan</p>
+                </div>
+                
+                <div class="candidates" id="penanggungjawab-ikhwan-candidates">
+                    <!-- Kandidat akan diisi oleh JavaScript -->
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="previousPage()"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    <button class="btn" onclick="nextPage()">Lanjut <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Halaman Voting Penanggungjawab Akhwat -->
+        <div id="penanggungjawab-akhwat-page" class="page">
+            <div class="card">
+                <div class="islamic-pattern"></div>
+                <div class="user-info">
+                    <p><i class="fas fa-user"></i> Pemilih: <span id="user-name-3"></span> | <i class="fas fa-graduation-cap"></i> Kelas: <span id="user-class-3"></span></p>
+                </div>
+                
+                <div class="step-indicator">
+                    <div class="step-connector"></div>
+                    <div class="step-connector-progress" id="step-progress-3"></div>
+                    
+                    <div class="step completed">
+                        <div class="step-circle">1</div>
+                        <div class="step-text">Ketua Umum</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">2</div>
+                        <div class="step-text">Penanggungjawab Ikhwan</div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-circle">3</div>
+                        <div class="step-text">Penanggungjawab Akhwat</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">4</div>
+                        <div class="step-text">Sekretaris Umum</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">5</div>
+                        <div class="step-text">Bendahara Umum</div>
+                    </div>
+                </div>
+                
+                <div class="page-header">
+                    <h2>Pemilihan Penanggungjawab Akhwat</h2>
+                    <p class="position-title">Pilih calon Penanggungjawab Akhwat ROHIS 2025/2026</p>
+                    <p>Pilih salah satu kandidat untuk mengurus divisi akhwat</p>
+                </div>
+                
+                <div class="candidates" id="penanggungjawab-akhwat-candidates">
+                    <!-- Kandidat akan diisi oleh JavaScript -->
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="previousPage()"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    <button class="btn" onclick="nextPage()">Lanjut <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Halaman Voting Sekretaris Umum -->
+        <div id="sekretaris-umum-page" class="page">
+            <div class="card">
+                <div class="islamic-pattern"></div>
+                <div class="user-info">
+                    <p><i class="fas fa-user"></i> Pemilih: <span id="user-name-4"></span> | <i class="fas fa-graduation-cap"></i> Kelas: <span id="user-class-4"></span></p>
+                </div>
+                
+                <div class="step-indicator">
+                    <div class="step-connector"></div>
+                    <div class="step-connector-progress" id="step-progress-4"></div>
+                    
+                    <div class="step completed">
+                        <div class="step-circle">1</div>
+                        <div class="step-text">Ketua Umum</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">2</div>
+                        <div class="step-text">Penanggungjawab Ikhwan</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">3</div>
+                        <div class="step-text">Penanggungjawab Akhwat</div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-circle">4</div>
+                        <div class="step-text">Sekretaris Umum</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle">5</div>
+                        <div class="step-text">Bendahara Umum</div>
+                    </div>
+                </div>
+                
+                <div class="page-header">
+                    <h2>Pemilihan Sekretaris Umum</h2>
+                    <p class="position-title">Pilih calon Sekretaris Umum ROHIS 2025/2026</p>
+                    <p>Pilih salah satu kandidat untuk mengurus administrasi organisasi</p>
+                </div>
+                
+                <div class="candidates" id="sekretaris-umum-candidates">
+                    <!-- Kandidat akan diisi oleh JavaScript -->
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="previousPage()"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    <button class="btn" onclick="nextPage()">Lanjut <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Halaman Voting Bendahara Umum -->
+        <div id="bendahara-umum-page" class="page">
+            <div class="card">
+                <div class="islamic-pattern"></div>
+                <div class="user-info">
+                    <p><i class="fas fa-user"></i> Pemilih: <span id="user-name-5"></span> | <i class="fas fa-graduation-cap"></i> Kelas: <span id="user-class-5"></span></p>
+                </div>
+                
+                <div class="step-indicator">
+                    <div class="step-connector"></div>
+                    <div class="step-connector-progress" id="step-progress-5"></div>
+                    
+                    <div class="step completed">
+                        <div class="step-circle">1</div>
+                        <div class="step-text">Ketua Umum</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">2</div>
+                        <div class="step-text">Penanggungjawab Ikhwan</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">3</div>
+                        <div class="step-text">Penanggungjawab Akhwat</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">4</div>
+                        <div class="step-text">Sekretaris Umum</div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-circle">5</div>
+                        <div class="step-text">Bendahara Umum</div>
+                    </div>
+                </div>
+                
+                <div class="page-header">
+                    <h2>Pemilihan Bendahara Umum</h2>
+                    <p class="position-title">Pilih calon Bendahara Umum ROHIS 2025/2026</p>
+                    <p>Pilih salah satu kandidat untuk mengurus keuangan organisasi</p>
+                </div>
+                
+                <div class="candidates" id="bendahara-umum-candidates">
+                    <!-- Kandidat akan diisi oleh JavaScript -->
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="previousPage()"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    <button class="btn" onclick="nextPage()">Lanjut ke Ringkasan <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Halaman Ringkasan -->
+        <div id="summary-page" class="page">
+            <div class="card">
+                <div class="islamic-pattern"></div>
+                <div class="user-info">
+                    <p><i class="fas fa-user"></i> Pemilih: <span id="user-name-6"></span> | <i class="fas fa-graduation-cap"></i> Kelas: <span id="user-class-6"></span></p>
+                </div>
+                
+                <div class="step-indicator">
+                    <div class="step-connector"></div>
+                    <div class="step-connector-progress" id="step-progress-6"></div>
+                    
+                    <div class="step completed">
+                        <div class="step-circle">1</div>
+                        <div class="step-text">Ketua Umum</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">2</div>
+                        <div class="step-text">Penanggungjawab Ikhwan</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">3</div>
+                        <div class="step-text">Penanggungjawab Akhwat</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">4</div>
+                        <div class="step-text">Sekretaris Umum</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-circle">5</div>
+                        <div class="step-text">Bendahara Umum</div>
+                    </div>
+                </div>
+                
+                <div class="page-header">
+                    <h2>Ringkasan Pilihan Anda</h2>
+                    <p class="position-title">Tinjau kembali pilihan Anda sebelum mengirim</p>
+                    <p>Pastikan semua pilihan sudah sesuai. Anda dapat mengubah pilihan dengan menekan tombol "Ubah".</p>
+                </div>
+                
+                <div class="summary-container" id="summary-container">
+                    <!-- Ringkasan akan diisi oleh JavaScript -->
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="previousPage()"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    <button class="btn btn-warning" onclick="submitVotes()"><i class="fas fa-paper-plane"></i> Kirim Suara</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Halaman Terima Kasih -->
+        <div id="thank-you-page" class="page">
+            <div class="card">
+                <div class="islamic-pattern"></div>
+                <div class="logo-container">
+                    <div class="logo thank-you-logo">
+                        <!-- Menggunakan logo yang sama seperti halaman login -->
+                        <img src="/pemilu-rohis/rohis.jpg" alt="Logo ROHIS" id="thank-you-logo">
+                    </div>
+                </div>
+                <h2>Terima Kasih</h2>
+                <div class="arabic-text">جَزَاكُمُ اللهُ خَيْرًا</div>
+                <p class="thank-you-message">
+                    Terima kasih telah berpartisipasi dalam Pemilu Ketua ROHIS 2025/2026. 
+                    Suara Anda telah tercatat dan akan diperhitungkan dalam proses pemilihan.
+                </p>
+                <p class="thank-you-message">
+                    Semoga Allah SWT memberkati pilihan kita semua dan memberikan yang terbaik untuk perkembangan ROHIS di masa depan.
+                </p>
+                <div style="text-align: center;">
+                    <button class="btn" onclick="backToLogin()">Kembali ke Halaman Login <i class="fas fa-redo"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Pemilu Ketua ROHIS. All rights reserved.</p>
+        </div>
+    </div>
+
+    <!-- Floating Notification -->
+    <div id="floating-notification" class="floating-notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Pilihan berhasil disimpan!</span>
+    </div>
+
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOih8nLPLErMhVSoTXwvukwlG69j1GG4k",
+            authDomain: "rohis-61416.firebaseapp.com",
+            databaseURL: "https://rohis-61416-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rohis-61416",
+            storageBucket: "rohis-61416.firebasestorage.app",
+            messagingSenderId: "1050393892173",
+            appId: "1:1050393892173:web:fbadecc2014dde72091304"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Data semua kandidat (5 kandidat: 3 laki-laki, 2 perempuan)
+        const allCandidates = [
+            { id: 1, name: 'Firman Pratama S.', gender: 'L', photo: 'A' },
+            { id: 2, name: 'M. Nauval Azzikri', gender: 'L', photo: 'M' },
+            { id: 3, name: 'M. Fauzan Alfaridzi', gender: 'L', photo: 'A' },
+            { id: 4, name: 'Fahira Nurazizah', gender: 'P', photo: 'A' },
+            { id: 5, name: 'Raina Kaylla S.', gender: 'P', photo: 'F' }
+        ];
+
+        // Data untuk menyimpan pilihan user
+        let userVotes = {
+            nama: '',
+            kelas: '',
+            ketuaUmum: null,
+            penanggungjawabIkhwan: null,
+            penanggungjawabAkhwat: null,
+            sekretarisUmum: null,
+            bendaharaUmum: null,
+            timestamp: null
+        };
+
+        // Urutan halaman voting
+        const votingPages = [
+            'ketua-umum-page',
+            'penanggungjawab-ikhwan-page',
+            'penanggungjawab-akhwat-page',
+            'sekretaris-umum-page',
+            'bendahara-umum-page',
+            'summary-page',
+            'thank-you-page'
+        ];
+
+        let currentPageIndex = 0;
+
+        // Fungsi untuk menampilkan halaman tertentu
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update progress bar
+            updateProgress();
+            
+            // Update user info di setiap halaman
+            updateUserInfo();
+        }
+
+        // Fungsi untuk memperbarui progress bar
+        function updateProgress() {
+            // Update progress connector
+            const progressPercentage = (currentPageIndex / (votingPages.length - 2)) * 100;
+            document.querySelectorAll('.step-connector-progress').forEach(progress => {
+                progress.style.width = `${progressPercentage}%`;
+            });
+            
+            // Update step status
+            document.querySelectorAll('.step').forEach((step, index) => {
+                if (index < currentPageIndex) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (index === currentPageIndex) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+        }
+
+        // Fungsi untuk memperbarui informasi user di setiap halaman
+        function updateUserInfo() {
+            document.querySelectorAll('[id^="user-name"]').forEach(element => {
+                element.textContent = userVotes.nama;
+            });
+            
+            document.querySelectorAll('[id^="user-class"]').forEach(element => {
+                element.textContent = userVotes.kelas;
+            });
+        }
+
+        // Fungsi untuk memuat kandidat berdasarkan posisi
+        function loadCandidates(position) {
+            let candidates = [];
+            const containerId = `${position}-candidates`;
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // Dapatkan semua kandidat yang memenuhi kriteria gender untuk posisi ini
+            switch(position) {
+                case 'ketua-umum':
+                    // Hanya tampilkan kandidat laki-laki untuk Ketua Umum
+                    candidates = allCandidates.filter(c => c.gender === 'L');
+                    break;
+                case 'penanggungjawab-ikhwan':
+                    // Tampilkan kandidat laki-laki
+                    candidates = allCandidates.filter(c => c.gender === 'L');
+                    break;
+                case 'penanggungjawab-akhwat':
+                    // Tampilkan kandidat perempuan
+                    candidates = allCandidates.filter(c => c.gender === 'P');
+                    break;
+                case 'sekretaris-umum':
+                    // Tampilkan semua kandidat
+                    candidates = [...allCandidates];
+                    break;
+                case 'bendahara-umum':
+                    // Tampilkan semua kandidat
+                    candidates = [...allCandidates];
+                    break;
+            }
+            
+            // Jika tidak ada kandidat yang tersedia
+            if (candidates.length === 0) {
+                container.innerHTML = '<p>Tidak ada kandidat tersedia untuk posisi ini.</p>';
+                return;
+            }
+            
+            candidates.forEach(candidate => {
+                // Cek apakah kandidat ini sudah dipilih untuk posisi lain
+                const isSelectedForOtherPosition = isCandidateSelectedForOtherPosition(candidate.id, position);
+                const isSelectedForThisPosition = getSelectedCandidateId(position) === candidate.id;
+                
+                let candidateClass = 'candidate';
+                if (isSelectedForThisPosition) {
+                    candidateClass += ' selected';
+                } else if (isSelectedForOtherPosition) {
+                    candidateClass += ' disabled';
+                }
+                
+                const candidateElement = document.createElement('div');
+                candidateElement.className = candidateClass;
+                
+                let badgeHtml = '';
+                if (isSelectedForThisPosition) {
+                    badgeHtml = '<div class="selection-badge"><i class="fas fa-check"></i></div>';
+                } else if (isSelectedForOtherPosition) {
+                    const positionName = getCandidatePositionName(candidate.id);
+                    badgeHtml = `<div class="already-selected-badge">${positionName}</div>`;
+                }
+                
+                let buttonHtml = '';
+                if (isSelectedForThisPosition) {
+                    buttonHtml = `<button class="btn" disabled><i class="fas fa-check"></i> Terpilih</button>`;
+                } else if (isSelectedForOtherPosition) {
+                    buttonHtml = `<button class="btn" disabled>Sudah Dipilih</button>`;
+                } else {
+                    buttonHtml = `<button class="btn" onclick="selectCandidate('${position}', ${candidate.id}, '${candidate.name}')">Pilih <i class="fas fa-vote-yea"></i></button>`;
+                }
+                
+                candidateElement.innerHTML = `
+                    ${badgeHtml}
+                    <div class="candidate-photo">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="candidate-info">
+                        <div class="candidate-name">${candidate.name}</div>
+                        ${buttonHtml}
+                    </div>
+                `;
+                container.appendChild(candidateElement);
+            });
+        }
+
+        // Fungsi untuk memeriksa apakah kandidat sudah dipilih untuk posisi lain
+        function isCandidateSelectedForOtherPosition(candidateId, currentPosition) {
+            const positionKeys = {
+                'ketua-umum': 'ketuaUmum',
+                'penanggungjawab-ikhwan': 'penanggungjawabIkhwan',
+                'penanggungjawab-akhwat': 'penanggungjawabAkhwat',
+                'sekretaris-umum': 'sekretarisUmum',
+                'bendahara-umum': 'bendaharaUmum'
+            };
+            
+            for (const [position, key] of Object.entries(positionKeys)) {
+                if (position !== currentPosition && userVotes[key] === candidateId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Fungsi untuk mendapatkan nama posisi di mana kandidat dipilih
+        function getCandidatePositionName(candidateId) {
+            if (userVotes.ketuaUmum === candidateId) return 'Ketua Umum';
+            if (userVotes.penanggungjawabIkhwan === candidateId) return 'PJ Ikhwan';
+            if (userVotes.penanggungjawabAkhwat === candidateId) return 'PJ Akhwat';
+            if (userVotes.sekretarisUmum === candidateId) return 'Sekretaris';
+            if (userVotes.bendaharaUmum === candidateId) return 'Bendahara';
+            return '';
+        }
+
+        // Fungsi untuk mendapatkan ID kandidat yang dipilih untuk posisi tertentu
+        function getSelectedCandidateId(position) {
+            switch(position) {
+                case 'ketua-umum':
+                    return userVotes.ketuaUmum;
+                case 'penanggungjawab-ikhwan':
+                    return userVotes.penanggungjawabIkhwan;
+                case 'penanggungjawab-akhwat':
+                    return userVotes.penanggungjawabAkhwat;
+                case 'sekretaris-umum':
+                    return userVotes.sekretarisUmum;
+                case 'bendahara-umum':
+                    return userVotes.bendaharaUmum;
+                default:
+                    return null;
+            }
+        }
+
+        // Fungsi untuk memilih kandidat
+        function selectCandidate(position, candidateId, candidateName) {
+            // Simpan pilihan user
+            switch(position) {
+                case 'ketua-umum':
+                    userVotes.ketuaUmum = candidateId;
+                    break;
+                case 'penanggungjawab-ikhwan':
+                    userVotes.penanggungjawabIkhwan = candidateId;
+                    break;
+                case 'penanggungjawab-akhwat':
+                    userVotes.penanggungjawabAkhwat = candidateId;
+                    break;
+                case 'sekretaris-umum':
+                    userVotes.sekretarisUmum = candidateId;
+                    break;
+                case 'bendahara-umum':
+                    userVotes.bendaharaUmum = candidateId;
+                    break;
+            }
+            
+            // Tampilkan notifikasi
+            showNotification(`Anda memilih ${candidateName} untuk posisi ${getPositionName(position)}`);
+            
+            // Reload kandidat untuk memperbarui tampilan
+            loadCandidates(position);
+        }
+
+        // Fungsi untuk mendapatkan nama posisi
+        function getPositionName(position) {
+            const positionNames = {
+                'ketua-umum': 'Ketua Umum',
+                'penanggungjawab-ikhwan': 'Penanggungjawab Ikhwan',
+                'penanggungjawab-akhwat': 'Penanggungjawab Akhwat',
+                'sekretaris-umum': 'Sekretaris Umum',
+                'bendahara-umum': 'Bendahara Umum'
+            };
+            return positionNames[position] || position;
+        }
+
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message) {
+            const notification = document.getElementById('floating-notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            // Sembunyikan notifikasi setelah 3 detik
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Fungsi untuk pindah ke halaman berikutnya
+        function nextPage() {
+            // Validasi apakah user sudah memilih untuk halaman ini
+            const currentPage = votingPages[currentPageIndex];
+            const position = currentPage.replace('-page', '');
+            
+            if (position !== 'summary' && position !== 'thank-you' && !getSelectedCandidateId(position)) {
+                showNotification(`Silakan pilih kandidat untuk ${getPositionName(position)} terlebih dahulu`);
+                return;
+            }
+            
+            currentPageIndex++;
+            if (currentPageIndex < votingPages.length) {
+                showPage(votingPages[currentPageIndex]);
+                
+                // Load konten untuk halaman berikutnya
+                const nextPage = votingPages[currentPageIndex].replace('-page', '');
+                if (nextPage === 'summary') {
+                    loadSummary();
+                } else if (nextPage !== 'thank-you') {
+                    loadCandidates(nextPage);
+                }
+            }
+        }
+
+        // Fungsi untuk pindah ke halaman sebelumnya
+        function previousPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                showPage(votingPages[currentPageIndex]);
+                
+                // Load konten untuk halaman sebelumnya
+                const prevPage = votingPages[currentPageIndex].replace('-page', '');
+                if (prevPage !== 'summary' && prevPage !== 'thank-you') {
+                    loadCandidates(prevPage);
+                }
+            }
+        }
+
+        // Fungsi untuk memuat ringkasan
+        function loadSummary() {
+            const container = document.getElementById('summary-container');
+            container.innerHTML = '';
+            
+            const positions = [
+                { key: 'ketuaUmum', name: 'Ketua Umum' },
+                { key: 'penanggungjawabIkhwan', name: 'Penanggungjawab Ikhwan' },
+                { key: 'penanggungjawabAkhwat', name: 'Penanggungjawab Akhwat' },
+                { key: 'sekretarisUmum', name: 'Sekretaris Umum' },
+                { key: 'bendaharaUmum', name: 'Bendahara Umum' }
+            ];
+            
+            positions.forEach((position, index) => {
+                const candidateId = userVotes[position.key];
+                const candidate = allCandidates.find(c => c.id === candidateId);
+                
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                summaryItem.innerHTML = `
+                    <div class="summary-position">${position.name}</div>
+                    <div class="summary-candidate">${candidate ? candidate.name : 'Belum dipilih'}</div>
+                    <div class="summary-change" onclick="goToPage(${index})">Ubah</div>
+                `;
+                container.appendChild(summaryItem);
+            });
+        }
+
+        // Fungsi untuk pindah ke halaman tertentu
+        function goToPage(pageIndex) {
+            currentPageIndex = pageIndex;
+            showPage(votingPages[currentPageIndex]);
+            loadCandidates(votingPages[currentPageIndex].replace('-page', ''));
+        }
+
+        // Fungsi untuk mengirim vote ke Firebase
+        function submitVotes() {
+            // Validasi apakah semua posisi sudah dipilih
+            const positions = [
+                { key: 'ketuaUmum', name: 'Ketua Umum' },
+                { key: 'penanggungjawabIkhwan', name: 'Penanggungjawab Ikhwan' },
+                { key: 'penanggungjawabAkhwat', name: 'Penanggungjawab Akhwat' },
+                { key: 'sekretarisUmum', name: 'Sekretaris Umum' },
+                { key: 'bendaharaUmum', name: 'Bendahara Umum' }
+            ];
+            
+            for (const position of positions) {
+                if (!userVotes[position.key]) {
+                    showNotification(`Anda belum memilih kandidat untuk ${position.name}`);
+                    return;
+                }
+            }
+            
+            if (!confirm("Apakah Anda yakin dengan pilihan Anda? Setelah dikirim, Anda tidak dapat mengubah pilihan.")) {
+                return;
+            }
+            
+            // Tambahkan timestamp
+            userVotes.timestamp = new Date().toISOString();
+            
+            // Generate unique ID berdasarkan nama dan kelas
+            const voterId = `${userVotes.nama.replace(/\s+/g, '_')}_${userVotes.kelas}`;
+            
+            // Cek apakah user sudah pernah memilih
+            database.ref('votes/' + voterId).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        alert('Anda sudah melakukan voting sebelumnya. Terima kasih atas partisipasinya.');
+                        backToLogin();
+                        return;
+                    }
+                    
+                    // Push data ke Firebase dengan ID unik
+                    return database.ref('votes/' + voterId).set(userVotes);
+                })
+                .then(() => {
+                    console.log('Vote berhasil disimpan ke Firebase');
+                    // Lanjut ke halaman terima kasih
+                    currentPageIndex++;
+                    showPage(votingPages[currentPageIndex]);
+                })
+                .catch((error) => {
+                    console.error('Error menyimpan vote:', error);
+                    alert('Terjadi kesalahan saat menyimpan data. Silakan coba lagi.');
+                });
+        }
+
+        // Fungsi untuk kembali ke halaman login
+        function backToLogin() {
+            // Reset data
+            userVotes = {
+                nama: '',
+                kelas: '',
+                ketuaUmum: null,
+                penanggungjawabIkhwan: null,
+                penanggungjawabAkhwat: null,
+                sekretarisUmum: null,
+                bendaharaUmum: null,
+                timestamp: null
+            };
+            
+            currentPageIndex = 0;
+            
+            // Reset form login
+            document.getElementById('login-form').reset();
+            document.getElementById('login-alert').style.display = 'none';
+            
+            // Tampilkan halaman login
+            showPage('login-page');
+        }
+
+        // Event listener untuk form login
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nama = document.getElementById('nama').value.trim();
+            const kelas = document.getElementById('kelas').value;
+            const loginBtn = document.getElementById('login-btn');
+            const loginAlert = document.getElementById('login-alert');
+            
+            // Validasi input
+            if (!nama || !kelas) {
+                loginAlert.textContent = 'Nama dan kelas harus diisi!';
+                loginAlert.className = 'alert alert-error';
+                loginAlert.style.display = 'block';
+                return;
+            }
+            
+            // Tampilkan loading
+            loginBtn.innerHTML = '<span class="loading"></span> Memproses...';
+            loginBtn.disabled = true;
+            
+            // Cek apakah user sudah pernah memilih
+            const voterId = `${nama.replace(/\s+/g, '_')}_${kelas}`;
+            database.ref('votes/' + voterId).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        loginAlert.textContent = 'Anda sudah melakukan voting sebelumnya. Terima kasih atas partisipasinya.';
+                        loginAlert.className = 'alert alert-error';
+                        loginAlert.style.display = 'block';
+                        loginBtn.innerHTML = 'Masuk <i class="fas fa-sign-in-alt"></i>';
+                        loginBtn.disabled = false;
+                        return;
+                    }
+                    
+                    // Simpan data user
+                    userVotes.nama = nama;
+                    userVotes.kelas = kelas;
+                    
+                    // Tampilkan halaman voting pertama
+                    currentPageIndex = 0;
+                    showPage(votingPages[currentPageIndex]);
+                    
+                    // Load kandidat untuk halaman pertama
+                    loadCandidates('ketua-umum');
+                    
+                    // Reset login button
+                    loginBtn.innerHTML = 'Masuk <i class="fas fa-sign-in-alt"></i>';
+                    loginBtn.disabled = false;
+                })
+                .catch((error) => {
+                    console.error('Error checking voter:', error);
+                    loginAlert.textContent = 'Terjadi kesalahan saat memproses. Silakan coba lagi.';
+                    loginAlert.className = 'alert alert-error';
+                    loginAlert.style.display = 'block';
+                    loginBtn.innerHTML = 'Masuk <i class="fas fa-sign-in-alt"></i>';
+                    loginBtn.disabled = false;
+                });
+        });
+
+        // Inisialisasi halaman login sebagai halaman pertama
+        showPage('login-page');
+        
+        // Contoh penggunaan: changeLogo('https://example.com/logo-rohis.png');
+    </script>
+</body>
+</html>
